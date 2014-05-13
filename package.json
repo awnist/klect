@@ -1,0 +1,24 @@
+{
+   "name":"klect",
+   "description":"Simple asset manager",
+   "author":"Awnist <hi@awnist.com> (http://awnist.com)",
+   "version":"0.0.1",
+   "main":"./lib/klect",
+   "repository":{
+      "type":"git",
+      "url":"git@github.com:awnist/klect.git"
+   },
+   "license":{
+      "type":"Public Domain",
+      "url":"http://unlicense.org/"
+   },
+   "dependencies": {
+      "lodash": "latest",
+      "glob": "latest",
+      "minimatch": "latest",
+      "path": "latest"
+   },
+   "scripts": {
+     "prepublish": "coffee -o lib/ -c src/"
+   }
+}
