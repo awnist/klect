@@ -6,45 +6,47 @@ path = require 'path'
 
 # Extending Array native type.
 # "wrappers can be used ... in which object’s prototype chain is augmented, rather than object itself."
-GlooCollection = ->
+KlectCollection = ->
   arr = []
   arr.push.apply arr, arguments
-  arr.__proto__ = GlooCollection::
+  arr.__proto__ = KlectCollection::
   arr
-GlooCollection:: = new Array
+KlectCollection:: = new Array
 # Custom methods
-GlooCollection::methods = (method) -> [].concat (item[method]() for item in @)...
-GlooCollection::html = -> @methods 'html'
-GlooCollection::files = -> @methods 'files'
+KlectCollection::methods = (method) -> [].concat (item[method]() for item in @)...
+KlectCollection::html = -> @methods 'html'
+KlectCollection::files = -> [].concat (item.files for item in @)...
 
-
-class Gloo
-
-  _config = null
-  _bundles = {}
+class Klect
 
   constructor: (config={}) ->
-    _config = config
-    _config.cwd ?= "./"
-    _config.htmlcwd ?= "/"
+    @_config = config
+    @_bundles = {}
+    @_config.cwd ?= path.dirname(module.parent.filename) or "./"
+    @_config.htmlcwd ?= "/"
     @
 
+  html: -> KlectCollection.apply(new KlectCollection(), (val for key, val of @_bundles)).html()
+  files: -> KlectCollection.apply(new KlectCollection(), (val for key, val of @_bundles)).files()
+
   gather: (obj) ->
+    _gathered = []
+
+    obj = { _: obj } if _.isArray obj
+
     for name, files of obj
 
       # console.log "Building", name
+      _gathered.push name
 
-      bundle = _bundles[name] =
+      bundle = @_bundles[name] =
         name: name
         files: []
 
+      _config = @_config
       Object.defineProperty bundle, 'html', 
         enumerable: false
         value: -> (path.join(_config.htmlcwd, file) for file in @files)
-
-      Object.defineProperty bundle, 'files', 
-        enumerable: false
-        value: -> (path.join(_config.cwd, file) for file in @files)
 
       for file in files
 
@@ -62,20 +64,21 @@ class Gloo
 
         # List of files we already have
         # If this glob is forced, skip the unique check. (via empty array)
-        _uniques = if isForced then [] else [].concat (val.files for key, val of _bundles)...
+        _uniques = if isForced then [] else [].concat (val.files for key, val of @_bundles)...
 
         # New files based on pattern minus already have
-        found = if file.substr(0,2) is '//' then [file] else _.difference glob.sync(file, {cwd: _config.cwd, nonegate: true}), _uniques
+        found = if file.substr(0,2) is '//' then [file] else _.difference glob.sync(file, {cwd: @_config.cwd, nonegate: true}), _uniques
 
         bundle.files.push found...
+
+    # # Cheaty way to get new Array([foo, bar]) without having a nested array [[foo, bar]]
+    # KlectCollection.apply new KlectCollection(), (val for name, val of @_bundles when _gathered.indexOf(name) isnt -1)
 
     @
 
   bundles: (name) ->
-    matches = minimatch.match Object.keys(_bundles), name, nonull: false
-    bundles = (_bundles[match] for match in matches)
+    matches = minimatch.match Object.keys(@_bundles), name, nonull: false
+    bundles = (@_bundles[match] for match in matches)
+    KlectCollection.apply new KlectCollection(), bundles
 
-    # Cheaty way to get new Array([foo, bar]) without having a nested array [[foo, bar]]
-    GlooCollection.apply new GlooCollection(), bundles
-
-module.exports = Gloo
+module.exports = Klect
