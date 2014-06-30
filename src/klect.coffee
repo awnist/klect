@@ -14,7 +14,7 @@ KlectCollection = ->
 KlectCollection:: = new Array
 # Custom methods
 KlectCollection::methods = (method) -> [].concat (item[method]() for item in @)...
-KlectCollection::html = -> @methods 'html'
+KlectCollection::urls = -> @methods 'urls'
 KlectCollection::files = -> [].concat (item.files for item in @)...
 
 class Klect
@@ -23,10 +23,10 @@ class Klect
     @_config = config
     @_bundles = {}
     @_config.cwd ?= path.dirname(module.parent.filename) or "./"
-    @_config.htmlcwd ?= "/"
+    @_config.urlcwd ?= "/"
     @
 
-  html: -> KlectCollection.apply(new KlectCollection(), (val for key, val of @_bundles)).html()
+  urls: -> KlectCollection.apply(new KlectCollection(), (val for key, val of @_bundles)).urls()
   files: -> KlectCollection.apply(new KlectCollection(), (val for key, val of @_bundles)).files()
 
   gather: (obj) ->
@@ -44,9 +44,9 @@ class Klect
         files: []
 
       _config = @_config
-      Object.defineProperty bundle, 'html', 
+      Object.defineProperty bundle, 'urls', 
         enumerable: false
-        value: -> (path.join(_config.htmlcwd, file) for file in @files)
+        value: -> (path.join(_config.urlcwd, file) for file in @files)
 
       for file in files
 
