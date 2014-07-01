@@ -9,8 +9,8 @@ Klect is a node module that will collect and enumerate groups of assets.
 ## Basic usage
 
     var bundles = {
-        "mobile.css": ['modules/**/*.mobile.{less,css}']
-        "desktop.css": ['modules/**/*.{less,css}']
+        "mobile.css": 'modules/**/*.mobile.{less,css}'
+        "desktop.css": 'modules/**/*.{less,css}'
         "site.js": [
             'modules/angular/angular.js',
             'modules/**/*.js'
@@ -32,8 +32,8 @@ Note that assets are collected in a first come / first claim basis.
 
 In the example above, 
 
-        "mobile.css": ['modules/**/*.mobile.{less,css}']
-        "desktop.css": ['modules/**/*.{less,css}']
+        "mobile.css": 'modules/**/*.mobile.{less,css}'
+        "desktop.css": 'modules/**/*.{less,css}'
 
 desktop.css will ignore any files already claimed by mobile.css.
 
