@@ -36,6 +36,8 @@ class Klect
 
     for name, files of obj
 
+      files = [files] unless _.isArray files
+
       # console.log "Building", name
       _gathered.push name
 
