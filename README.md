@@ -2,6 +2,8 @@
 
 Klect is a node module that will collect and enumerate groups of assets. 
 
+This is usually Javascript and Stylesheets, but it can be anything.
+
 ## Install
 
     $ npm install klect
@@ -84,7 +86,7 @@ Get a specific bundle:
 
     console.log(assets.bundles("site.js"));
 
-Or a list of bundles by glob name):
+Or a list of bundles by glob name:
 
     console.log(assets.bundles("site.*"));
 
