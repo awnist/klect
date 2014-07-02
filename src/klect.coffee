@@ -32,9 +32,11 @@ class Klect
   gather: (obj) ->
     _gathered = []
 
-    obj = { _: obj } if _.isArray obj
+    obj = { _: obj } if _.isArray(obj) or _.isString(obj)
 
     for name, files of obj
+
+      files = [files] unless _.isArray files
 
       # console.log "Building", name
       _gathered.push name
