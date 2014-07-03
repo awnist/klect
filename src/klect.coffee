@@ -24,6 +24,7 @@ class Klect
     @_bundles = {}
     @_config.cwd ?= path.dirname(module.parent.filename) or "./"
     @_config.urlcwd ?= "/"
+    @_config.defaultBundleName ?= "_"
     @
 
   urls: -> KlectCollection.apply(new KlectCollection(), (val for key, val of @_bundles)).urls()
@@ -32,7 +33,8 @@ class Klect
   gather: (obj) ->
     _gathered = []
 
-    obj = { _: obj } if _.isArray(obj) or _.isString(obj)
+    if _.isArray(obj) or _.isString(obj)
+      obj = _.object(@_config.defaultBundleName, obj)
 
     for name, files of obj
 
