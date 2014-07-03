@@ -78,7 +78,7 @@ class Klect
 
     @
 
-  bundles: (name) ->
+  bundles: (name = '*') ->
     matches = minimatch.match Object.keys(@_bundles), name, nonull: false
     bundles = (@_bundles[match] for match in matches)
     KlectCollection.apply new KlectCollection(), bundles
