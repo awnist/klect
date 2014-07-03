@@ -34,7 +34,7 @@ class Klect
     _gathered = []
 
     if _.isArray(obj) or _.isString(obj)
-      obj = _.object(@_config.defaultBundleName, obj)
+      obj = _.object [@_config.defaultBundleName], [obj]
 
     for name, files of obj
 
