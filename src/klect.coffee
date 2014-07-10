@@ -43,6 +43,8 @@ class Klect
     if _.isArray(obj) or _.isString(obj)
       obj = _.object [@_config.defaultBundleName], [obj]
 
+    networkRegex = /^(http(s)?:)?\/\//i
+
     for name, files of obj
 
       files = [files] unless _.isArray files
@@ -57,7 +59,10 @@ class Klect
       _config = @_config
       Object.defineProperty bundle, 'urls',
         enumerable: false
-        value: -> (path.join(_config.urlcwd, file) for file in @files)
+        value: ->
+          u = for file in @files
+            if networkRegex.test file then file
+            else (path.join(_config.urlcwd, file) for file in @files)
 
       for file in files
 
@@ -68,7 +73,7 @@ class Klect
         #   # this is a bundle, steal its stuff
 
         # http:// to //
-        file = file.replace /^http(s)?:/, ''
+        # file = file.replace networkRegex, ''
 
         if isForced = /^\!/.test file
           file = file.replace /^\!/, ''
@@ -79,7 +84,8 @@ class Klect
         else [].concat (val.files for key, val of @_bundles)...
 
         # New files based on pattern minus already have
-        found = if file.substr(0,2) is '//' then [file]
+        # found = if file.substr(0,2) is '//' then [file]
+        found = if networkRegex.test file then [file]
         else _.difference glob.sync(file, {cwd: @_config.cwd, nonegate: true}),
           _uniques
 
