@@ -24,14 +24,15 @@ class Klect
   constructor: (config={}) ->
     @_config = config
     @_bundles = {}
-    @_config.cwd ?= path.dirname(module.parent.filename) or "./"
-    @_config.urlcwd ?= "/"
-    @_config.defaultBundleName ?= "_"
+    @_config.cwd ?= path.dirname(module.parent.filename) or './'
+    @_config.urlcwd ?= '/'
+    @_config.defaultBundleName ?= '_'
     @
 
   urls: ->
     kc = new KlectCollection()
     KlectCollection.apply(kc, (val for key, val of @_bundles)).urls()
+
   files: ->
     kc = new KlectCollection()
     KlectCollection.apply(kc, (val for key, val of @_bundles)).files()
