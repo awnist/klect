@@ -2,7 +2,7 @@
   "name": "klect",
   "description": "Simple asset manager",
   "author": "Awnist <hi@awnist.com> (http://awnist.com)",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "main": "./lib/klect",
   "repository": {
     "type": "git",

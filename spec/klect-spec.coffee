@@ -85,7 +85,7 @@ describe 'Klect', ->
           expect(klect2._bundles.group2.files.length).to.equal 1
 
       context 'when a forced pattern is passed', ->
-        it 'should not include found files multiple times', ->
+        it 'should include forced files multiple times', ->
           klect2 = new Klect()
           klect2.gather
             group1: ['fixtures/bundle1/*.js', 'fixtures/bundle2/*.js']
@@ -142,12 +142,11 @@ describe 'Klect', ->
     klect2 = null
     klect3 = null
     customUrlcwd = '/some/root/'
+    httpUrlCwd = 'http://some/root/'
 
     beforeEach ->
       klect2 = new Klect
         urlcwd: customUrlcwd
-
-      klect3 = new Klect()
 
       bundles =
         group1: ['fixtures/bundle1/*.js', 'fixtures/bundle2/*.js']
@@ -156,7 +155,9 @@ describe 'Klect', ->
       klect.gather bundles
       klect2.gather bundles
 
-      klect3 = new Klect()
+      klect3 = new Klect
+        urlcwd: httpUrlCwd
+
       klect3.gather
         group1: ['fixtures/bundle1/*.js', 'fixtures/bundle2/*.js']
         group2: ['fixtures/bundle3/*.js',
@@ -169,6 +170,10 @@ describe 'Klect', ->
         it 'should support external links', ->
           urls = klect3.bundles().urls()
           expect(urls).to.have.length 6
+
+          u = 'http://some/root/fixtures/bundle1/index.js'
+          expect(urls[0][0]).to.equal u
+
           expect(urls[3]).to.equal 'http://www.google.com/something.js'
           expect(urls[4]).to.equal 'https://www.google.com/something.js'
           expect(urls[5]).to.equal '//www.google.com/something.js'

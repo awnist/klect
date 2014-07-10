@@ -2,7 +2,7 @@ _ = require 'lodash'
 glob = require 'glob'
 minimatch = require 'minimatch'
 path = require 'path'
-
+url = require 'url'
 
 # Extending Array native type.
 # "wrappers can be used ... in which object’s prototype chain is augmented,
@@ -62,7 +62,7 @@ class Klect
         value: ->
           u = for file in @files
             if networkRegex.test file then file
-            else (path.join(_config.urlcwd, file) for file in @files)
+            else (url.resolve(_config.urlcwd, file) for file in @files)
 
       for file in files
 
