@@ -2,10 +2,11 @@ _ = require 'lodash'
 glob = require 'glob'
 minimatch = require 'minimatch'
 path = require 'path'
-
+url = require 'url'
 
 # Extending Array native type.
-# "wrappers can be used ... in which object’s prototype chain is augmented, rather than object itself."
+# "wrappers can be used ... in which object’s prototype chain is augmented,
+# rather than object itself."
 KlectCollection = ->
   arr = []
   arr.push.apply arr, arguments
@@ -13,7 +14,8 @@ KlectCollection = ->
   arr
 KlectCollection:: = new Array
 # Custom methods
-KlectCollection::methods = (method) -> [].concat (item[method]() for item in @)...
+KlectCollection::methods = (method) ->
+  [].concat (item[method]() for item in @)...
 KlectCollection::urls = -> @methods 'urls'
 KlectCollection::files = -> [].concat (item.files for item in @)...
 
@@ -22,19 +24,26 @@ class Klect
   constructor: (config={}) ->
     @_config = config
     @_bundles = {}
-    @_config.cwd ?= path.dirname(module.parent.filename) or "./"
-    @_config.urlcwd ?= "/"
-    @_config.defaultBundleName ?= "_"
+    @_config.cwd ?= path.dirname(module.parent.filename) or './'
+    @_config.urlcwd ?= '/'
+    @_config.defaultBundleName ?= '_'
     @
 
-  urls: -> KlectCollection.apply(new KlectCollection(), (val for key, val of @_bundles)).urls()
-  files: -> KlectCollection.apply(new KlectCollection(), (val for key, val of @_bundles)).files()
+  urls: ->
+    kc = new KlectCollection()
+    KlectCollection.apply(kc, (val for key, val of @_bundles)).urls()
+
+  files: ->
+    kc = new KlectCollection()
+    KlectCollection.apply(kc, (val for key, val of @_bundles)).files()
 
   gather: (obj) ->
     _gathered = []
 
     if _.isArray(obj) or _.isString(obj)
       obj = _.object [@_config.defaultBundleName], [obj]
+
+    networkRegex = /^(http(s)?:)?\/\//i
 
     for name, files of obj
 
@@ -48,35 +57,44 @@ class Klect
         files: []
 
       _config = @_config
-      Object.defineProperty bundle, 'urls', 
+      Object.defineProperty bundle, 'urls',
         enumerable: false
-        value: -> (path.join(_config.urlcwd, file) for file in @files)
+        value: ->
+          u = for file in @files
+            if networkRegex.test file then file
+            else (url.resolve(_config.urlcwd, file) for file in @files)
 
       for file in files
 
         # console.log "\tReading #{file}"
 
         # TODO: support for ':bundle.name/foo/bar/baz'
-        # if name.match /^:([^\/]+)/ 
+        # if name.match /^:([^\/]+)/
         #   # this is a bundle, steal its stuff
 
         # http:// to //
-        file = file.replace /^http(s)?:/, ''
+        # file = file.replace networkRegex, ''
 
         if isForced = /^\!/.test file
           file = file.replace /^\!/, ''
 
         # List of files we already have
         # If this glob is forced, skip the unique check. (via empty array)
-        _uniques = if isForced then [] else [].concat (val.files for key, val of @_bundles)...
+        _uniques = if isForced then []
+        else [].concat (val.files for key, val of @_bundles)...
 
         # New files based on pattern minus already have
-        found = if file.substr(0,2) is '//' then [file] else _.difference glob.sync(file, {cwd: @_config.cwd, nonegate: true}), _uniques
+        # found = if file.substr(0,2) is '//' then [file]
+        found = if networkRegex.test file then [file]
+        else _.difference glob.sync(file, {cwd: @_config.cwd, nonegate: true}),
+          _uniques
 
         bundle.files.push found...
 
-    # # Cheaty way to get new Array([foo, bar]) without having a nested array [[foo, bar]]
-    # KlectCollection.apply new KlectCollection(), (val for name, val of @_bundles when _gathered.indexOf(name) isnt -1)
+    # # Cheaty way to get new Array([foo, bar]) without having a nested array
+    # [[foo, bar]]
+    # KlectCollection.apply new KlectCollection(),
+    #   (val for name, val of @_bundles when _gathered.indexOf(name) isnt -1)
 
     @
 
