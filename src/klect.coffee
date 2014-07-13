@@ -61,8 +61,9 @@ class Klect
         enumerable: false
         value: ->
           u = for file in @files
-            if networkRegex.test file then file
-            else (url.resolve(_config.urlcwd, file) for file in @files)
+            if networkRegex.test(file) then file
+            else url.resolve(_config.urlcwd, file)
+            # else (url.resolve(_config.urlcwd, file) for file in @files)
 
       for file in files
 

@@ -172,7 +172,7 @@ describe 'Klect', ->
           expect(urls).to.have.length 6
 
           u = 'http://some/root/fixtures/bundle1/index.js'
-          expect(urls[0][0]).to.equal u
+          expect(urls[0]).to.equal u
 
           expect(urls[3]).to.equal 'http://www.google.com/something.js'
           expect(urls[4]).to.equal 'https://www.google.com/something.js'
